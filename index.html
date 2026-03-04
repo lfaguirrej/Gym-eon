@@ -104,6 +104,36 @@
             box-shadow: 0 4px 12px var(--accent-glow);
         }
 
+        .routine-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* Mobile specific tab */
+        #mobile-routine-tab {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            #mobile-routine-tab {
+                display: flex;
+            }
+
+            /* Hide aside by default on mobile unless active */
+            aside {
+                display: none;
+            }
+
+            aside.active {
+                display: block;
+            }
+        }
+
         /* Gym Explorer */
         .explorer-grid {
             display: grid;
@@ -258,6 +288,22 @@
             border: 1px solid var(--glass-border);
         }
 
+        .timer-preset {
+            background: none;
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .timer-preset:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.2);
+        }
+
         .timer-display {
             font-size: 3rem;
             font-weight: 700;
@@ -332,8 +378,11 @@
     <div class="container">
         <main>
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('explorer')">Equipos y Ejercicios</button>
-                <button class="tab-btn" onclick="switchTab('suggested')">Rutinas Sugeridas</button>
+                <button class="tab-btn active" onclick="switchTab('explorer')">Equipos</button>
+                <button class="tab-btn" onclick="switchTab('suggested')">Rutinas</button>
+                <button id="mobile-routine-tab" class="tab-btn" onclick="switchTab('routine')">
+                    Mi Rutina <span id="routine-count" class="routine-badge" style="display:none">0</span>
+                </button>
                 <button class="tab-btn" onclick="switchTab('guide')">Guía</button>
             </div>
 
@@ -345,7 +394,8 @@
 
             <section id="suggested-section" class="fadeIn" style="display: none;">
                 <h3 style="margin-bottom: 1.5rem; color: var(--accent);">🎯 Por Objetivos</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="equipment-card" style="padding: 1.5rem; border-top: 4px solid var(--accent);">
                         <h3 style="margin-bottom: 0.5rem;">🔥 Quema de Grasa</h3>
                         <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.8rem;">Intervalos
@@ -375,6 +425,21 @@
                         </ul>
                         <button class="btn btn-success" style="width: 100%;"
                             onclick="loadSuggestedRoutine('muscle_gain')">Cargar Plan</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.5rem; border-top: 4px solid #f59e0b;">
+                        <h3 style="margin-bottom: 0.5rem;">✨ Tonificar</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.8rem;">Altas
+                            repeticiones para definir y ganar resistencia muscular.</p>
+                        <ul
+                            style="list-style: none; margin-bottom: 1.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• 3 x 15 Press Hombros (Manc)</li>
+                            <li>• 3 x 15 Remo con Mancuerna</li>
+                            <li>• 3 x 15 Zancadas (Manc)</li>
+                            <li>• 3 x 20 Step-ups (Cajón)</li>
+                            <li>• 3 x 15 Bicep Curl + Hammer</li>
+                        </ul>
+                        <button class="btn" style="width: 100%; background: #f59e0b; color: white;"
+                            onclick="loadSuggestedRoutine('toning')">Cargar Plan</button>
                     </div>
                 </div>
 
@@ -477,19 +542,23 @@
                 </div>
 
                 <div class="timer-container">
-                    <h4>Temporizador de Descanso</h4>
+                    <h4>Temporizador</h4>
                     <div class="timer-display" id="timer-val">00:60</div>
                     <div class="timer-btns">
                         <button class="btn btn-success" onclick="startTimer()">Iniciar</button>
                         <button class="btn btn-danger" onclick="resetTimer()">Reset</button>
                     </div>
-                    <div style="margin-top: 10px; display: flex; gap: 5px; justify-content: center;">
-                        <button onclick="setTimer(30)"
-                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">30s</button>
-                        <button onclick="setTimer(60)"
-                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">60s</button>
-                        <button onclick="setTimer(90)"
-                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">90s</button>
+                    <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;">
+                        <button onclick="setTimer(30)" class="timer-preset">30s</button>
+                        <button onclick="setTimer(60)" class="timer-preset">60s</button>
+                        <button onclick="setTimer(90)" class="timer-preset">90s</button>
+                        <button onclick="setTimer(120)" class="timer-preset">2m</button>
+                        <button onclick="setTimer(300)" class="timer-preset">5m</button>
+                        <button onclick="setTimer(600)" class="timer-preset">10m</button>
+                        <button onclick="setTimer(900)" class="timer-preset">15m</button>
+                        <button onclick="setTimer(1200)" class="timer-preset">20m</button>
+                        <button onclick="setTimer(1500)" class="timer-preset">25m</button>
+                        <button onclick="setTimer(1800)" class="timer-preset">30m</button>
                     </div>
                 </div>
             </div>
@@ -615,13 +684,17 @@
         function renderRoutine() {
             const list = document.getElementById('routine-list');
             const emptyState = document.getElementById('routine-empty');
+            const countBadge = document.getElementById('routine-count');
 
             if (userRoutine.length === 0) {
                 emptyState.style.display = 'block';
                 list.innerHTML = '';
+                countBadge.style.display = 'none';
                 return;
             }
 
+            countBadge.style.display = 'inline-block';
+            countBadge.textContent = userRoutine.length;
             emptyState.style.display = 'none';
             list.innerHTML = userRoutine.map(item => `
             <div class="routine-card fadeIn">
@@ -671,6 +744,15 @@
                         { name: "Jalón al Pecho (Polea)", sets: 4, reps: 10, weight: 25 },
                         { name: "Press de Hombros (Manc)", sets: 3, reps: 12, weight: 10 },
                         { name: "Curl de Bíceps", sets: 3, reps: 12, weight: 8 }
+                    ];
+                    break;
+                case 'toning':
+                    exercises = [
+                        { name: "Press de Hombros (Manc)", sets: 3, reps: 15, weight: 8 },
+                        { name: "Remo con Mancuerna", sets: 3, reps: 15, weight: 10 },
+                        { name: "Zancadas (Mancuerna)", sets: 3, reps: 15, weight: 5 },
+                        { name: "Step-ups (Cajón)", sets: 3, reps: 20, weight: 0 },
+                        { name: "Curl Bíceps + Martillo", sets: 3, reps: 15, weight: 5 }
                     ];
                     break;
                 case 'chest':
@@ -724,9 +806,11 @@
         /* Timer Logic */
         let timerInterval;
         let secondsLeft = 60;
+        let initialSeconds = 60;
 
         function setTimer(sec) {
             secondsLeft = sec;
+            initialSeconds = sec;
             updateTimerDisplay();
         }
 
@@ -744,7 +828,7 @@
                 updateTimerDisplay();
                 if (secondsLeft <= 0) {
                     clearInterval(timerInterval);
-                    alert('¡Descanso terminado!');
+                    alert('¡Tiempo cumplido!');
                     resetTimer();
                 }
             }, 1000);
@@ -752,20 +836,31 @@
 
         function resetTimer() {
             clearInterval(timerInterval);
-            secondsLeft = 60;
+            secondsLeft = initialSeconds;
             updateTimerDisplay();
         }
 
         /* Tabs */
         function switchTab(tab) {
+            const isMobile = window.innerWidth <= 900;
+
             document.getElementById('explorer-section').style.display = tab === 'explorer' ? 'block' : 'none';
             document.getElementById('suggested-section').style.display = tab === 'suggested' ? 'block' : 'none';
             document.getElementById('guide-section').style.display = tab === 'guide' ? 'block' : 'none';
 
+            const aside = document.querySelector('aside');
+            if (isMobile) {
+                aside.style.display = tab === 'routine' ? 'block' : 'none';
+                aside.classList.toggle('active', tab === 'routine');
+            } else {
+                aside.style.display = 'block'; // Keep aside on desktop
+            }
+
             const btns = document.querySelectorAll('.tab-btn');
             btns[0].classList.toggle('active', tab === 'explorer');
             btns[1].classList.toggle('active', tab === 'suggested');
-            btns[2].classList.toggle('active', tab === 'guide');
+            btns[2].classList.toggle('active', tab === 'routine');
+            btns[3].classList.toggle('active', tab === 'guide');
         }
 
         // Init
