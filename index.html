@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym EÓN - Organizador de Rutina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 2rem;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Gym Explorer */
+        .explorer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .equipment-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .equipment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent);
+        }
+
+        .equipment-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        .equipment-info {
+            padding: 1.5rem;
+        }
+
+        .equipment-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .exercise-list {
+            margin-top: 1rem;
+        }
+
+        .exercise-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .add-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Routine Panel */
+        .routine-panel {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .routine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .routine-list {
+            list-style: none;
+        }
+
+        .routine-card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .routine-card h4 {
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .routine-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .input-group label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.4rem;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .remove-task {
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.8rem;
+            display: inline-block;
+        }
+
+        /* Timer */
+        .timer-container {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: monospace;
+            margin: 1rem 0;
+            color: var(--accent);
+        }
+
+        .timer-btns {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fadeIn {
+            animation: fadeIn 0.4s ease forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>GYM EÓN</h1>
+        <p style="color: var(--text-secondary)">Diseña tu rutina perfecta con el equipo disponible</p>
+    </header>
+
+    <div class="container">
+        <main>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('explorer')">Equipos y Ejercicios</button>
+                <button class="tab-btn" onclick="switchTab('suggested')">Rutinas Sugeridas</button>
+                <button class="tab-btn" onclick="switchTab('guide')">Guía</button>
+            </div>
+
+            <section id="explorer-section" class="fadeIn">
+                <div class="explorer-grid" id="equipment-grid">
+                    <!-- Se llenará con JS -->
+                </div>
+            </section>
+
+            <section id="suggested-section" class="fadeIn" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--accent);">🎯 Por Objetivos</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="equipment-card" style="padding: 1.5rem; border-top: 4px solid var(--accent);">
+                        <h3 style="margin-bottom: 0.5rem;">🔥 Quema de Grasa</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.8rem;">Intervalos
+                            intensos para maximizar el gasto calórico.</p>
+                        <ul
+                            style="list-style: none; margin-bottom: 1.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• 10 min Caminadora (HIIT)</li>
+                            <li>• 3 x 15 Sentadillas (Mancuerna)</li>
+                            <li>• 3 x 20 Saltos al Cajón</li>
+                            <li>• 5 min Saco de Boxeo</li>
+                            <li>• 3 min Planchas (Core)</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%;"
+                            onclick="loadSuggestedRoutine('weight_loss')">Cargar Plan</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.5rem; border-top: 4px solid var(--success);">
+                        <h3 style="margin-bottom: 0.5rem;">💪 Masa Muscular</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.8rem;">Enfoque en
+                            fuerza e hipertrofia con ejercicios compuestos.</p>
+                        <ul
+                            style="list-style: none; margin-bottom: 1.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• 4 x 10 Press de Banca (Barra)</li>
+                            <li>• 4 x 10 Sentadillas (Smith)</li>
+                            <li>• 4 x 10 Jalón al Pecho (Polea)</li>
+                            <li>• 3 x 12 Press Hombros (Manc)</li>
+                            <li>• 3 x 12 Curl de Bíceps</li>
+                        </ul>
+                        <button class="btn btn-success" style="width: 100%;"
+                            onclick="loadSuggestedRoutine('muscle_gain')">Cargar Plan</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1.5rem; color: var(--accent);">💪 Por Grupos Musculares</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem;">
+                    <div class="equipment-card" style="padding: 1.2rem;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: center;">Pecho</h4>
+                        <ul
+                            style="list-style: none; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• Press de Banca (Barra)</li>
+                            <li>• Press inclinado (Manc)</li>
+                            <li>• Press en Smith</li>
+                            <li>• Aperturas de Pecho (Banco)</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;"
+                            onclick="loadSuggestedRoutine('chest')">Cargar</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.2rem;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: center;">Espalda</h4>
+                        <ul
+                            style="list-style: none; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• Jalón al Pecho (Polea)</li>
+                            <li>• Remo con Mancuerna</li>
+                            <li>• Remo con Barra (Estación)</li>
+                            <li>• Remo Invertido (Smith)</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;"
+                            onclick="loadSuggestedRoutine('back')">Cargar</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.2rem;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: center;">Piernas</h4>
+                        <ul
+                            style="list-style: none; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• Sentadillas (Smith)</li>
+                            <li>• Extensión de Piernas</li>
+                            <li>• Zancadas con Mancuerna</li>
+                            <li>• Saltos al Cajón</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;"
+                            onclick="loadSuggestedRoutine('legs')">Cargar</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.2rem;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: center;">Hombros</h4>
+                        <ul
+                            style="list-style: none; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• Press de Hombros (Manc)</li>
+                            <li>• Vuelos Laterales</li>
+                            <li>• Press Militar (Smith)</li>
+                            <li>• Face Pulls (Polea)</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;"
+                            onclick="loadSuggestedRoutine('shoulders')">Cargar</button>
+                    </div>
+                    <div class="equipment-card" style="padding: 1.2rem;">
+                        <h4 style="margin-bottom: 0.5rem; text-align: center;">Brazos</h4>
+                        <ul
+                            style="list-style: none; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                            <li>• Curl de Bíceps (Manc)</li>
+                            <li>• Extensión de Tríceps</li>
+                            <li>• Curl Martillo</li>
+                            <li>• Fondos de Tríceps (Cajón)</li>
+                        </ul>
+                        <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;"
+                            onclick="loadSuggestedRoutine('arms')">Cargar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="guide-section" class="fadeIn" style="display: none;">
+                <div class="equipment-card" style="width: 100%; padding: 2rem;">
+                    <h3>Consejos para tu entrenamiento</h3>
+                    <br>
+                    <p>1. <b>Calentamiento:</b> Usa la caminadora o bicicleta por 5-10 minutos.</p>
+                    <br>
+                    <p>2. <b>Intensidad:</b> Los ejercicios en la máquina Smith son excelentes para ganar fuerza con
+                        seguridad.</p>
+                    <br>
+                    <p>3. <b>Variedad:</b> Usa las mancuernas para ejercicios que involucren músculos estabilizadores.
+                    </p>
+                    <br>
+                    <p>4. <b>Core:</b> No olvides terminar con 10 minutos de trabajo en tapete con balón medicinal.</p>
+                </div>
+            </section>
+        </main>
+
+        <aside>
+            <div class="routine-panel">
+                <div class="routine-header">
+                    <h3>Mi Rutina</h3>
+                    <button class="btn btn-danger" onclick="clearRoutine()" style="font-size: 0.7rem;">Borrar
+                        Todo</button>
+                </div>
+
+                <div id="routine-empty" class="empty-state">
+                    <p>No has añadido ejercicios aún.</p>
+                </div>
+
+                <div id="routine-list" class="routine-list">
+                    <!-- Se llenará con JS -->
+                </div>
+
+                <div class="timer-container">
+                    <h4>Temporizador de Descanso</h4>
+                    <div class="timer-display" id="timer-val">00:60</div>
+                    <div class="timer-btns">
+                        <button class="btn btn-success" onclick="startTimer()">Iniciar</button>
+                        <button class="btn btn-danger" onclick="resetTimer()">Reset</button>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 5px; justify-content: center;">
+                        <button onclick="setTimer(30)"
+                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">30s</button>
+                        <button onclick="setTimer(60)"
+                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">60s</button>
+                        <button onclick="setTimer(90)"
+                            style="background: none; border: 1px solid var(--glass-border); color: white; padding: 2px 5px; border-radius: 4px; cursor: pointer;">90s</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const equipmentData = [
+            {
+                id: 1,
+                name: "Caminadora Profesional",
+                img: "Fotos/IMG_20260224_192000160_HDR.jpg",
+                exercises: ["Trote Constante", "Intervalos HIIT", "Caminata Inclinada"]
+            },
+            {
+                id: 2,
+                name: "Bicicletas de Spinning",
+                img: "Fotos/IMG_20260224_191923728_HDR.jpg",
+                exercises: ["Sprint de Resistencia", "Ciclismo de Fondo"]
+            },
+            {
+                id: 3,
+                name: "Máquina Smith (Evoluti)",
+                img: "Fotos/IMG_20260224_191932404_HDR.jpg",
+                exercises: ["Sentadillas", "Press de Pecho", "Remo Invertido", "Zancadas"]
+            },
+            {
+                id: 4,
+                name: "Multi-Gym Poleas",
+                img: "Fotos/IMG_20260224_191948005_HDR.jpg",
+                exercises: ["Jalón al Pecho", "Extensión de Tríceps", "Extensión de Piernas", "Vuelos con Polea"]
+            },
+            {
+                id: 5,
+                name: "Rack de Mancuernas",
+                img: "Fotos/IMG_20260224_192046495_HDR.jpg",
+                exercises: ["Press de Hombros", "Curl de Bíceps", "Vuelos Laterales", "Zancadas con Peso"]
+            },
+            {
+                id: 6,
+                name: "Banco Ajustable",
+                img: "Fotos/IMG_20260224_192007681_HDR.jpg",
+                exercises: ["Press Inclinado", "Cruces de Abdominales", "Aperturas de Pecho"]
+            },
+            {
+                id: 7,
+                name: "Estación de Barra Libre",
+                img: "Fotos/IMG_20260224_192034439_HDR.jpg",
+                exercises: ["Press de Banca", "Remo con Barra"]
+            },
+            {
+                id: 8,
+                name: "Cajón Plyo",
+                img: "Fotos/IMG_20260224_192018118_HDR.jpg",
+                exercises: ["Saltos al Cajón", "Step-ups", "Fondos de Tríceps"]
+            },
+            {
+                id: 9,
+                name: "Saco de Boxeo",
+                img: "Fotos/IMG_20260224_191954914_HDR.jpg",
+                exercises: ["Rounds de Boxeo", "Patadas Frontales"]
+            },
+            {
+                id: 10,
+                name: "Zona de Tapetes y Balones",
+                img: "Fotos/IMG_20260224_192042742_HDR.jpg",
+                exercises: ["Core con Balón", "Plancha Abdominal", "Lanzamientos"]
+            }
+        ];
+
+        let userRoutine = JSON.parse(localStorage.getItem('gym_eon_routine')) || [];
+
+        function renderExplorer() {
+            const grid = document.getElementById('equipment-grid');
+            grid.innerHTML = equipmentData.map(item => `
+            <div class="equipment-card">
+                <img src="${item.img}" class="equipment-img" alt="${item.name}">
+                <div class="equipment-info">
+                    <h3 class="equipment-title">${item.name}</h3>
+                    <div class="exercise-list">
+                        ${item.exercises.map(ex => `
+                            <div class="exercise-item">
+                                <span>${ex}</span>
+                                <button class="add-btn" onclick="addToRoutine('${ex}')">+</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        function addToRoutine(exerciseName) {
+            const newExercise = {
+                id: Date.now(),
+                name: exerciseName,
+                sets: 4,
+                reps: 12,
+                weight: 0
+            };
+            userRoutine.push(newExercise);
+            saveAndRender();
+        }
+
+        function removeFromRoutine(id) {
+            userRoutine = userRoutine.filter(item => item.id !== id);
+            saveAndRender();
+        }
+
+        function updateExercise(id, field, value) {
+            const index = userRoutine.findIndex(item => item.id === id);
+            if (index !== -1) {
+                userRoutine[index][field] = value;
+                localStorage.setItem('gym_eon_routine', JSON.stringify(userRoutine));
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('gym_eon_routine', JSON.stringify(userRoutine));
+            renderRoutine();
+        }
+
+        function renderRoutine() {
+            const list = document.getElementById('routine-list');
+            const emptyState = document.getElementById('routine-empty');
+
+            if (userRoutine.length === 0) {
+                emptyState.style.display = 'block';
+                list.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            list.innerHTML = userRoutine.map(item => `
+            <div class="routine-card fadeIn">
+                <h4>${item.name}</h4>
+                <div class="routine-inputs">
+                    <div class="input-group">
+                        <label>Sets</label>
+                        <input type="number" value="${item.sets}" onchange="updateExercise(${item.id}, 'sets', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Reps</label>
+                        <input type="number" value="${item.reps}" onchange="updateExercise(${item.id}, 'reps', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Peso (kg)</label>
+                        <input type="number" value="${item.weight}" onchange="updateExercise(${item.id}, 'weight', this.value)">
+                    </div>
+                </div>
+                <span class="remove-task" onclick="removeFromRoutine(${item.id})">Quitar ejercicio</span>
+            </div>
+        `).join('');
+        }
+
+        function clearRoutine(silent = false) {
+            if (silent || confirm('¿Quieres borrar toda la rutina?')) {
+                userRoutine = [];
+                saveAndRender();
+            }
+        }
+
+        function loadSuggestedRoutine(type) {
+            let exercises = [];
+            switch (type) {
+                case 'weight_loss':
+                    exercises = [
+                        { name: "Intervalos HIIT (Caminadora)", sets: 1, reps: 10, weight: 0 },
+                        { name: "Sentadillas con Mancuerna", sets: 3, reps: 15, weight: 5 },
+                        { name: "Saltos al Cajón", sets: 3, reps: 20, weight: 0 },
+                        { name: "Rounds de Boxeo", sets: 3, reps: 3, weight: 0 },
+                        { name: "Plancha Abdominal", sets: 3, reps: 60, weight: 0 }
+                    ];
+                    break;
+                case 'muscle_gain':
+                    exercises = [
+                        { name: "Press de Banca (Barra)", sets: 4, reps: 10, weight: 20 },
+                        { name: "Sentadillas (Smith)", sets: 4, reps: 10, weight: 30 },
+                        { name: "Jalón al Pecho (Polea)", sets: 4, reps: 10, weight: 25 },
+                        { name: "Press de Hombros (Manc)", sets: 3, reps: 12, weight: 10 },
+                        { name: "Curl de Bíceps", sets: 3, reps: 12, weight: 8 }
+                    ];
+                    break;
+                case 'chest':
+                    exercises = [
+                        { name: "Press de Banca (Barra)", sets: 4, reps: 10, weight: 20 },
+                        { name: "Press inclinado (Manc)", sets: 3, reps: 12, weight: 12 },
+                        { name: "Press en Smith", sets: 3, reps: 12, weight: 20 },
+                        { name: "Aperturas de Pecho (Banco)", sets: 3, reps: 15, weight: 8 }
+                    ];
+                    break;
+                case 'back':
+                    exercises = [
+                        { name: "Jalón al Pecho (Polea)", sets: 4, reps: 10, weight: 30 },
+                        { name: "Remo con Mancuerna", sets: 3, reps: 12, weight: 15 },
+                        { name: "Remo con Barra (Estación)", sets: 3, reps: 12, weight: 20 },
+                        { name: "Remo Invertido (Smith)", sets: 3, reps: 15, weight: 0 }
+                    ];
+                    break;
+                case 'legs':
+                    exercises = [
+                        { name: "Sentadillas (Smith)", sets: 4, reps: 10, weight: 40 },
+                        { name: "Extensión de Piernas", sets: 3, reps: 15, weight: 20 },
+                        { name: "Zancadas con Mancuerna", sets: 3, reps: 12, weight: 10 },
+                        { name: "Saltos al Cajón", sets: 3, reps: 15, weight: 0 }
+                    ];
+                    break;
+                case 'shoulders':
+                    exercises = [
+                        { name: "Press de Hombros (Manc)", sets: 4, reps: 10, weight: 12 },
+                        { name: "Vuelos Laterales", sets: 3, reps: 15, weight: 5 },
+                        { name: "Press Militar (Smith)", sets: 3, reps: 12, weight: 15 },
+                        { name: "Face Pulls (Polea)", sets: 3, reps: 15, weight: 10 }
+                    ];
+                    break;
+                case 'arms':
+                    exercises = [
+                        { name: "Curl de Bíceps (Manc)", sets: 3, reps: 12, weight: 10 },
+                        { name: "Extensión de Tríceps", sets: 3, reps: 12, weight: 15 },
+                        { name: "Curl Martillo", sets: 3, reps: 12, weight: 8 },
+                        { name: "Fondos de Tríceps (Cajón)", sets: 3, reps: 15, weight: 0 }
+                    ];
+                    break;
+            }
+
+            userRoutine = [...userRoutine, ...exercises.map(ex => ({ ...ex, id: Date.now() + Math.random() }))];
+            saveAndRender();
+            console.log("Rutina actualizada - v1.1 (Aditiva)");
+            alert('¡Ejercicios añadidos! Revisa tu rutina en el panel derecho.');
+        }
+
+        /* Timer Logic */
+        let timerInterval;
+        let secondsLeft = 60;
+
+        function setTimer(sec) {
+            secondsLeft = sec;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
+            document.getElementById('timer-val').textContent =
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsLeft--;
+                updateTimerDisplay();
+                if (secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('¡Descanso terminado!');
+                    resetTimer();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            secondsLeft = 60;
+            updateTimerDisplay();
+        }
+
+        /* Tabs */
+        function switchTab(tab) {
+            document.getElementById('explorer-section').style.display = tab === 'explorer' ? 'block' : 'none';
+            document.getElementById('suggested-section').style.display = tab === 'suggested' ? 'block' : 'none';
+            document.getElementById('guide-section').style.display = tab === 'guide' ? 'block' : 'none';
+
+            const btns = document.querySelectorAll('.tab-btn');
+            btns[0].classList.toggle('active', tab === 'explorer');
+            btns[1].classList.toggle('active', tab === 'suggested');
+            btns[2].classList.toggle('active', tab === 'guide');
+        }
+
+        // Init
+        window.onload = () => {
+            renderExplorer();
+            renderRoutine();
+        };
+    </script>
+
+</body>
+
+</html>
